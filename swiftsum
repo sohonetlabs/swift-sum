@@ -11,7 +11,7 @@ import hashlib
 import os
 import math
 
-DEFAULT_SEGMENT_SIZE = '500M'
+DEFAULT_SEGMENT_SIZE = '1Gi'
 DEFAULT_READ_SIZE = '40Mi'
 
 SYMBOLS = {
