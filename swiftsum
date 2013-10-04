@@ -169,14 +169,6 @@ if __name__ == '__main__':
                         default=DEFAULT_READ_SIZE,
                         help='Segment size to read from disk (default: %s)'
                              % DEFAULT_READ_SIZE)
-    parser.add_argument('--slo', default=True,
-                        help='Calculate the SLO (Static Large Object) '
-                             'checksum (default).',
-                        action='store_true')
-    parser.add_argument('--dlo', default=False,
-                        help='Calculate the DLO (Dynamic Large Object) '
-                             'checksum.',
-                        action='store_true')
     parser.add_argument('-v', '--verbose', default=False,
                         help='Verbose (default: off).',
                         action='store_true')
@@ -197,7 +189,8 @@ if __name__ == '__main__':
             print 'Could not open %s' % filename
         else:
             if filesize > segment_size:
-                # calc the md5's for the segments
+                # calc the md5's for the segments and then the over all
+                # hash of the segsments hexdigest.
                 segment_md5s = []
                 segments_to_read = []
                 num_chunks = int(math.ceil(filesize / float(segment_size)))
@@ -223,11 +216,11 @@ if __name__ == '__main__':
                                                          chunk_md5.hexdigest())
                     segment_md5s.append(chunk_md5.hexdigest())
                     slo_md5.update(chunk_md5.hexdigest())
-
-                print 'MD5 for %s: %s' % (filename,  file_hash.hexdigest())
-                print 'SLO TAG for %s: %s' % (filename, slo_md5.hexdigest())
+                
+                print 'MD5 (%s) = %s' % (filename, file_hash.hexdigest())
+                print 'SLO e-TAG (%s) = %s' % (filename, slo_md5.hexdigest())
             else:
                 # calc the md5 checksum for the whole file
-                print "MD5 For %s: %s " % (filename, md5_for_file(f))
+                print "MD5 (%s) = %s " % (filename, md5_for_file(f))
         finally:
             f.close()
