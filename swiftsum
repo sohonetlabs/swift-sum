@@ -11,7 +11,7 @@ import hashlib
 import os
 import math
 
-DEFAULT_SEGMENT_SIZE = '1M'
+DEFAULT_SEGMENT_SIZE = '500M'
 DEFAULT_READ_SIZE = '40Mi'
 
 SYMBOLS = {
@@ -132,6 +132,15 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--readsize', dest='read_size',  
                         default=DEFAULT_READ_SIZE,
                         help='Segment size to read from disk (default: %s)' % DEFAULT_READ_SIZE)
+    parser.add_argument( '--slo', default=True,
+                        help='Calculate the SLO (Static Large Object) checksum (default).',
+                        action='store_true')                    
+    parser.add_argument( '--dlo', default=False, 
+                        help='Calculate the DLO (Dynamic Large Object) checksum.',
+                        action='store_true')
+    parser.add_argument('-v', '--verbose', default=False, 
+                        help='Verbose (default: off).',
+                        action='store_true')
     parser.add_argument('filename', nargs='+', help='file name to check')                        
     args = parser.parse_args()
     
