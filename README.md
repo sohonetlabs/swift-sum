@@ -10,7 +10,8 @@ usage: swiftsum [-h] [-s SEGMENT_SIZE] [-r READ_SIZE] [-v] [-x]
 
 Calculates the checksum of the object including SLO and DLO segments. By
 default swiftsum will print out 2 lines for a segmented file, the first being
-the MD5 of the file, the 2nd the segment hash
+the MD5 of the file, the 2nd the segment hash. For files less than the segment
+size only the MD5 is printed out.
 
 positional arguments:
   filename              file name to check
