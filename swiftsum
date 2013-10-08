@@ -127,10 +127,10 @@ def bytes2human(n, format='%(value).1f %(symbol)s', symbols='customary'):
     return format % dict(symbol=symbols[0], value=n)
 
 
-def md5_for_file(f):
+def md5_for_file(f, read_size):
     _hash = hashlib.md5()
     while True:
-        data = f.read(10240)
+        data = f.read()
         if len(data) == 0:
             break
         _hash.update(data)
@@ -160,7 +160,10 @@ def read_in_chunks(file_object, start=0, end=None, chunk_size=10240):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Calculates the checksum of the object including '
-                    'SLO and DLO segments.')
+                    'SLO and DLO segments. By default swiftsum will '
+                    'print out 2 lines for a segmented file, the '
+                    'first being the MD5 of the file, the 2nd the ' 
+                    'segment hash')
     parser.add_argument('-s', '--segmentsize', dest='segment_size',
                         default=DEFAULT_SEGMENT_SIZE,
                         help='File segment size (default: %s)'
@@ -172,6 +175,9 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose', default=False,
                         help='Verbose (default: off).',
                         action='store_true')
+    parser.add_argument('-x', '--osx', default=False,
+                        help='OS X md5 output (default: Linux md5sum format).',
+                        action='store_true')
     parser.add_argument('filename', nargs='+', help='file name to check')
     args = parser.parse_args()
 
@@ -179,11 +185,17 @@ if __name__ == '__main__':
     read_size = human2bytes(args.read_size)
     filenames = args.filename
     verbose = args.verbose
+    osx_mode = args.osx
+    if verbose:
+        print 'read size %d' % read_size
+        print 'segment size %d' % segment_size
 
     for filename in filenames:
         try:
             f = open(filename, 'rb')
             filesize = os.path.getsize(filename)
+            if verbose:
+                print 'file size %d' % filesize
 
         except IOError:
             print 'Could not open %s' % filename
@@ -201,13 +213,15 @@ if __name__ == '__main__':
                     segments_to_read.append(
                         (chunk * segment_size,
                          chunk * segment_size + segment_size))
-
+                if verbose:
+                    print 'chunks = %s' % len(segments_to_read)
                 for (chunk_start, chunk_end) in segments_to_read:
                     # calc the md5 for each chunk
                     # also calc the hash of the file for sanity check
                     chunk_md5 = hashlib.md5()
                     for chunk in read_in_chunks(f, start=chunk_start,
-                                                end=chunk_end):
+                                                end=chunk_end, 
+                                                chunk_size=read_size):
                         chunk_md5.update(chunk)
                         file_hash.update(chunk)
                     if verbose:
@@ -217,10 +231,17 @@ if __name__ == '__main__':
                     segment_md5s.append(chunk_md5.hexdigest())
                     slo_md5.update(chunk_md5.hexdigest())
                 
-                print 'MD5 (%s) = %s' % (filename, file_hash.hexdigest())
-                print 'SLO e-TAG (%s) = %s' % (filename, slo_md5.hexdigest())
+                if osx_mode:
+                    print 'MD5 (%s) = %s' % (filename, file_hash.hexdigest())
+                    print 'SLO e-TAG (%s) = %s' % (filename, slo_md5.hexdigest())
+                else:
+                    print '%s %s' % (filename, file_hash.hexdigest())
+                    print '%s %s' % (filename, slo_md5.hexdigest())
             else:
                 # calc the md5 checksum for the whole file
-                print "MD5 (%s) = %s " % (filename, md5_for_file(f))
+                if osx_mode:
+                    print "MD5 (%s) = %s " % (filename, md5_for_file(f, read_size))
+                else:
+                    print "%s %s " % (filename, md5_for_file(f, read_size))
         finally:
             f.close()
