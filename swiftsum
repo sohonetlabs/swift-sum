@@ -18,7 +18,7 @@ DEFAULT_READ_SIZE = '40Mi'
 SYMBOLS = {
     'customary': ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'),
     'customary_ext': ('byte', 'kilo', 'mega', 'giga', 'tera', 'peta', 'exa',
-                      'zetta', 'iotta'),
+                      'zetta', 'yotta'),
     'iec': ('Bi', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi'),
     'iec_ext': ('byte', 'kibi', 'mebi', 'gibi', 'tebi', 'pebi', 'exbi',
                 'zebi', 'yobi'),
